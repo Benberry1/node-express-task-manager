@@ -1,5 +1,5 @@
 const getAllTasks = (req, res) => {
-  res.send("get all tasks");
+  res.send({ body: "get all tasks" });
 };
 
 const createTask = (req, res) => {
@@ -7,7 +7,7 @@ const createTask = (req, res) => {
 };
 
 const getSingleTask = (req, res) => {
-  res.send({ id: req.params.id });
+  res.send({ body: req.params.id });
 };
 
 const updateTask = (req, res) => {
@@ -15,7 +15,7 @@ const updateTask = (req, res) => {
 };
 
 const deleteTask = (req, res) => {
-  res.send({ task: "deleted" });
+  res.send({ body: "deleted" });
 };
 
 module.exports = {
