@@ -15,7 +15,7 @@ const createTask = async (req, res) => {
     const { body } = req;
     const newTask = new TaskModel(body);
     await newTask.save();
-    res.status(201).send(body);
+    res.status(201).send(newTask);
   } catch (error) {
     res.status(500).send({ message: "There was an error" });
   }
@@ -46,8 +46,23 @@ const updateTask = (req, res) => {
   res.send({ body: req.body });
 };
 
-const deleteTask = (req, res) => {
-  res.send({ body: "deleted" });
+const deleteTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const isValidId = mongoose.Types.ObjectId.isValid(id);
+    if (isValidId) {
+      const task = await TaskModel.findByIdAndDelete(id);
+      if (task) {
+        return res.status(200).send({ message: `Task deleted` });
+      } else {
+        return res.status(404).send({ message: "task not found" });
+      }
+    } else {
+      res.status(400).send({ message: "Invalid id" });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "There was an error" });
+  }
 };
 
 module.exports = {
