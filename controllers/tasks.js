@@ -42,8 +42,27 @@ const getSingleTask = async (req, res) => {
   }
 };
 
-const updateTask = (req, res) => {
-  res.send({ body: req.body });
+const updateTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+    const isValidId = mongoose.Types.ObjectId.isValid(id);
+
+    if (isValidId) {
+      const task = await TaskModel.findByIdAndUpdate(id, body, {
+        new: true,
+        runValidators: true,
+      });
+      if (task) {
+        return res.status(200).send(task);
+      } else {
+        return res.status(404).send({ message: "task not found" });
+      }
+    } else {
+      res.status(400).send({ message: "invalid id" });
+    }
+  } catch (error) {}
+  res.status(500).send({ message: "There was an error" });
 };
 
 const deleteTask = async (req, res) => {
