@@ -4,8 +4,15 @@ const getAllTasks = (req, res) => {
   res.send({ body: "get all tasks" });
 };
 
-const createTask = (req, res) => {
-  res.send({ body: req.body });
+const createTask = async (req, res) => {
+  try {
+    const { body } = req;
+    const newTask = new TaskModel(body);
+    await newTask.save();
+    res.status(201).send(body);
+  } catch (error) {
+    res.status(500).send({ message: "There was an error" });
+  }
 };
 
 const getSingleTask = (req, res) => {
