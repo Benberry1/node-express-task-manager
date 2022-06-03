@@ -26,7 +26,6 @@ const getSingleTask = async (req, res) => {
     const { id } = req.params;
 
     const isValidId = mongoose.Types.ObjectId.isValid(id);
-    console.log(isValidId);
     if (isValidId) {
       const task = await TaskModel.findById({ _id: id });
       if (task) {
