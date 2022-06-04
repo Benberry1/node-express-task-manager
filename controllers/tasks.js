@@ -1,6 +1,7 @@
 const TaskModel = require("../models/TaskModel");
 const mongoose = require("mongoose");
 const asyncWrapper = require("../middleware/async");
+const { createCustomError } = require("../errors/customError");
 
 const getAllTasks = asyncWrapper(async (req, res) => {
   const allTasks = await TaskModel.find({});
@@ -14,7 +15,7 @@ const createTask = asyncWrapper(async (req, res) => {
   res.status(201).send(newTask);
 });
 
-const getSingleTask = asyncWrapper(async (req, res) => {
+const getSingleTask = asyncWrapper(async (req, res, next) => {
   const { id } = req.params;
   const isValidId = mongoose.Types.ObjectId.isValid(id);
   if (isValidId) {
@@ -22,14 +23,14 @@ const getSingleTask = asyncWrapper(async (req, res) => {
     if (task) {
       return res.status(200).send(task);
     } else {
-      return res.status(404).send({ message: "task not found" });
+      return next(createCustomError(`No task with id : ${id}`, 404));
     }
   } else {
-    res.status(400).send({ message: "invalid id" });
+    return next(createCustomError("Invalid id, please try again", 400));
   }
 });
 
-const updateTask = asyncWrapper(async (req, res) => {
+const updateTask = asyncWrapper(async (req, res, next) => {
   const { id } = req.params;
   const { body } = req;
   const isValidId = mongoose.Types.ObjectId.isValid(id);
@@ -41,14 +42,14 @@ const updateTask = asyncWrapper(async (req, res) => {
     if (task) {
       return res.status(200).send(task);
     } else {
-      return res.status(404).send({ message: "task not found" });
+      return next(createCustomError(`No task with id : ${id}`, 404));
     }
   } else {
-    res.status(400).send({ message: "invalid id" });
+    return next(createCustomError("Invalid id, please try again", 400));
   }
 });
 
-const deleteTask = asyncWrapper(async (req, res) => {
+const deleteTask = asyncWrapper(async (req, res, next) => {
   const { id } = req.params;
   const isValidId = mongoose.Types.ObjectId.isValid(id);
   if (isValidId) {
@@ -56,10 +57,10 @@ const deleteTask = asyncWrapper(async (req, res) => {
     if (task) {
       return res.status(200).send({ message: `Task deleted` });
     } else {
-      return res.status(404).send({ message: "task not found" });
+      return next(createCustomError(`No task with id : ${id}`, 404));
     }
   } else {
-    res.status(400).send({ message: "Invalid id" });
+    return next(createCustomError("Invalid id, please try again", 400));
   }
 });
 
