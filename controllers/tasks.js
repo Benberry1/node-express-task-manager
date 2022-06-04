@@ -1,87 +1,67 @@
 const TaskModel = require("../models/TaskModel");
 const mongoose = require("mongoose");
+const asyncWrapper = require("../middleware/async");
 
-const getAllTasks = async (req, res) => {
-  try {
-    const allTasks = await TaskModel.find({});
-    res.status(200).send(allTasks);
-  } catch (error) {
-    res.status(500).send({ message: "There was an error" });
-  }
-};
+const getAllTasks = asyncWrapper(async (req, res) => {
+  const allTasks = await TaskModel.find({});
+  res.status(200).send(allTasks);
+});
 
-const createTask = async (req, res) => {
-  try {
-    const { body } = req;
-    const newTask = new TaskModel(body);
-    await newTask.save();
-    res.status(201).send(newTask);
-  } catch (error) {
-    res.status(500).send({ message: "There was an error" });
-  }
-};
+const createTask = asyncWrapper(async (req, res) => {
+  const { body } = req;
+  const newTask = new TaskModel(body);
+  await newTask.save();
+  res.status(201).send(newTask);
+});
 
-const getSingleTask = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const isValidId = mongoose.Types.ObjectId.isValid(id);
-    if (isValidId) {
-      const task = await TaskModel.findById({ _id: id });
-      if (task) {
-        return res.status(200).send(task);
-      } else {
-        return res.status(404).send({ message: "task not found" });
-      }
+const getSingleTask = asyncWrapper(async (req, res) => {
+  const { id } = req.params;
+  const isValidId = mongoose.Types.ObjectId.isValid(id);
+  if (isValidId) {
+    const task = await TaskModel.findById({ _id: id });
+    if (task) {
+      return res.status(200).send(task);
     } else {
-      res.status(400).send({ message: "invalid id" });
+      return res.status(404).send({ message: "task not found" });
     }
-  } catch (error) {
-    res.status(500).send({ message: "There was an error" });
+  } else {
+    res.status(400).send({ message: "invalid id" });
   }
-};
+});
 
-const updateTask = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { body } = req;
-    const isValidId = mongoose.Types.ObjectId.isValid(id);
-
-    if (isValidId) {
-      const task = await TaskModel.findByIdAndUpdate(id, body, {
-        new: true,
-        runValidators: true,
-      });
-      if (task) {
-        return res.status(200).send(task);
-      } else {
-        return res.status(404).send({ message: "task not found" });
-      }
+const updateTask = asyncWrapper(async (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+  const isValidId = mongoose.Types.ObjectId.isValid(id);
+  if (isValidId) {
+    const task = await TaskModel.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
+    if (task) {
+      return res.status(200).send(task);
     } else {
-      res.status(400).send({ message: "invalid id" });
+      return res.status(404).send({ message: "task not found" });
     }
-  } catch (error) {}
-  res.status(500).send({ message: "There was an error" });
-};
-
-const deleteTask = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const isValidId = mongoose.Types.ObjectId.isValid(id);
-    if (isValidId) {
-      const task = await TaskModel.findByIdAndDelete(id);
-      if (task) {
-        return res.status(200).send({ message: `Task deleted` });
-      } else {
-        return res.status(404).send({ message: "task not found" });
-      }
-    } else {
-      res.status(400).send({ message: "Invalid id" });
-    }
-  } catch (error) {
-    res.status(500).send({ message: "There was an error" });
+  } else {
+    res.status(400).send({ message: "invalid id" });
   }
-};
+});
+
+const deleteTask = asyncWrapper(async (req, res) => {
+  const { id } = req.params;
+  const isValidId = mongoose.Types.ObjectId.isValid(id);
+  if (isValidId) {
+    const task = await TaskModel.findByIdAndDelete(id);
+    if (task) {
+      return res.status(200).send({ message: `Task deleted` });
+    } else {
+      return res.status(404).send({ message: "task not found" });
+    }
+  } else {
+    res.status(400).send({ message: "Invalid id" });
+  }
+});
 
 module.exports = {
   getAllTasks,

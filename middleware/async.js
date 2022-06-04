@@ -1,4 +1,4 @@
-const asyncWrapper = () => {
+const asyncWrapper = (fn) => {
   return async (req, res) => {
     try {
       await fn(req, res, next);
